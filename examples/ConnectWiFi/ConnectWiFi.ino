@@ -1,18 +1,18 @@
-#include <HttpClient_ESP8266_AT.h>
+#include <HttpClient_ESP32_AT.h>
 
 // Three types of the constructors:
 
-// 1. Create SoftwareSerial inside HttpClient_ESP8266_AT class
-const byte rxPin = 2; // Wire this to Tx Pin of ESP8266
-const byte txPin = 3; // Wire this to Rx Pin of ESP8266
-HttpClient_ESP8266_AT httpClient(rxPin, txPin);
+// 1. Create SoftwareSerial inside HttpClient_ESP32_AT class
+const byte rxPin = 2; // Wire this to Tx Pin of ESP32
+const byte txPin = 3; // Wire this to Rx Pin of ESP32
+HttpClient_ESP32_AT httpClient(rxPin, txPin);
 
 // 2. Provide SoftwareSerial
 //SoftwareSerial softwareSerial(rxPin, txPin);
-//HttpClient_ESP8266_AT httpClient(softwareSerial);
+//HttpClient_ESP32_AT httpClient(softwareSerial);
 
 // 3. Provide HardwareSerial
-//HttpClient_ESP8266_AT httpClient(Serial);
+//HttpClient_ESP32_AT httpClient(Serial);
 
 
 void setup() {
@@ -21,7 +21,7 @@ void setup() {
     //softwareSerial.begin(115200); // in case of '2'
     //Serial.begin(115200); // in case of '3'
 
-    // Check the status of the ESP8266 AT command interface.
+    // Check the status of the ESP32 AT command interface.
     while(true) {
         if(httpClient.statusAT()) {
             Serial.println("AT status OK");

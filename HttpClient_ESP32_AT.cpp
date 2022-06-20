@@ -1,6 +1,6 @@
-#include "HttpClient_ESP8266_AT.h"
+#include "HttpClient_ESP32_AT.h"
 
-HttpClient_ESP8266_AT::HttpClient_ESP8266_AT(uint32_t rxPin, uint32_t txPin, uint32_t baud) :
+HttpClient_ESP32_AT::HttpClient_ESP32_AT(uint32_t rxPin, uint32_t txPin, uint32_t baud) :
     m_rxPin(rxPin), m_txPin(txPin), m_responseStatusCode(0)
 {
     SoftwareSerial *serial = new SoftwareSerial(rxPin, txPin);
@@ -8,26 +8,26 @@ HttpClient_ESP8266_AT::HttpClient_ESP8266_AT(uint32_t rxPin, uint32_t txPin, uin
     m_serial = serial;
 }
 
-HttpClient_ESP8266_AT::HttpClient_ESP8266_AT(SoftwareSerial &serial) :
+HttpClient_ESP32_AT::HttpClient_ESP32_AT(SoftwareSerial &serial) :
     m_rxPin(0), m_txPin(0), m_serial(&serial), m_responseStatusCode(0)
 {
 }
 
-HttpClient_ESP8266_AT::HttpClient_ESP8266_AT(HardwareSerial &serial) :
+HttpClient_ESP32_AT::HttpClient_ESP32_AT(HardwareSerial &serial) :
     m_rxPin(0), m_txPin(0), m_serial(&serial), m_responseStatusCode(0)
 {
 }
 
-HttpClient_ESP8266_AT::~HttpClient_ESP8266_AT() {
+HttpClient_ESP32_AT::~HttpClient_ESP32_AT() {
     disconnectAP();
     if(m_rxPin != 0 && m_txPin !=0) delete m_serial;
 }
 
-void HttpClient_ESP8266_AT::rxClear() {
+void HttpClient_ESP32_AT::rxClear() {
     while(m_serial->available() > 0) m_serial->read();
 }
 
-bool HttpClient_ESP8266_AT::checkATResponse(String *buf, String target, uint32_t timeout) {
+bool HttpClient_ESP32_AT::checkATResponse(String *buf, String target, uint32_t timeout) {
     *buf = "";
     char c;
     const unsigned long start = millis();
@@ -42,18 +42,18 @@ bool HttpClient_ESP8266_AT::checkATResponse(String *buf, String target, uint32_t
     return false;
 }
 
-bool HttpClient_ESP8266_AT::checkATResponse(String target, uint32_t timeout) {
+bool HttpClient_ESP32_AT::checkATResponse(String target, uint32_t timeout) {
     String buf;
     return checkATResponse(&buf, target, timeout);
 }
 
-bool HttpClient_ESP8266_AT::statusAT() {
+bool HttpClient_ESP32_AT::statusAT() {
     rxClear();
     m_serial->println(F("AT"));
     return checkATResponse();
 }
 
-bool HttpClient_ESP8266_AT::restart() {
+bool HttpClient_ESP32_AT::restart() {
     rxClear();
     m_serial->println(F("AT+RST"));
     if(!checkATResponse()) return false;
@@ -69,7 +69,7 @@ bool HttpClient_ESP8266_AT::restart() {
     return false;
 }
 
-bool HttpClient_ESP8266_AT::connectAP(const String& ssid, const String& password) {
+bool HttpClient_ESP32_AT::connectAP(const String& ssid, const String& password) {
     rxClear();
     m_serial->println(F("AT+CWMODE_DEF=1")); // 1: station(client) mode, 2: softAP(server) mode, 3: 1&2
     if(!(checkATResponse() && restart())) return false; // change "DEF"ault cwMode and restart
@@ -89,13 +89,13 @@ bool HttpClient_ESP8266_AT::connectAP(const String& ssid, const String& password
     return false;
 }
 
-bool HttpClient_ESP8266_AT::disconnectAP() {
+bool HttpClient_ESP32_AT::disconnectAP() {
     rxClear();
     m_serial->println(F("AT+CWQAP"));
     return checkATResponse();
 }
 
-uint8_t HttpClient_ESP8266_AT::ipStatus() {
+uint8_t HttpClient_ESP32_AT::ipStatus() {
     String buf;
     rxClear();
     m_serial->println(F("AT+CIPSTATUS"));
@@ -104,7 +104,7 @@ uint8_t HttpClient_ESP8266_AT::ipStatus() {
     return buf.substring(index + 1, index + 2).toInt();
 }
 
-bool HttpClient_ESP8266_AT::statusWiFi() {
+bool HttpClient_ESP32_AT::statusWiFi() {
     uint8_t checkCnt = 5;
     do {
         if(ipStatus() == 5) return false;
@@ -113,7 +113,7 @@ bool HttpClient_ESP8266_AT::statusWiFi() {
     return true;
 }
 
-bool HttpClient_ESP8266_AT::connectedTcp() {
+bool HttpClient_ESP32_AT::connectedTcp() {
     uint8_t retry = 5;
     do {
         if(ipStatus() == 3) return true;
@@ -122,13 +122,13 @@ bool HttpClient_ESP8266_AT::connectedTcp() {
     return false;
 }
 
-bool HttpClient_ESP8266_AT::disconnectTcp() {
+bool HttpClient_ESP32_AT::disconnectTcp() {
     rxClear();
     m_serial->println(F("AT+CIPCLOSE"));
     return checkATResponse();
 }
 
-bool HttpClient_ESP8266_AT::connectTcp(const String& host, uint32_t port) {
+bool HttpClient_ESP32_AT::connectTcp(const String& host, uint32_t port) {
     if(connectedTcp()) disconnectTcp();
     String buf;
     uint8_t retry = 10;
@@ -147,20 +147,20 @@ bool HttpClient_ESP8266_AT::connectTcp(const String& host, uint32_t port) {
     return false;
 }
 
-int HttpClient_ESP8266_AT::responseStatusCode() {
+int HttpClient_ESP32_AT::responseStatusCode() {
     return m_responseStatusCode;
 }
 
-bool HttpClient_ESP8266_AT::get(const String& host, const String& path, uint32_t port) {
+bool HttpClient_ESP32_AT::get(const String& host, const String& path, uint32_t port) {
     return sendRequest(F("GET"), host, port, path);
 }
 
-bool HttpClient_ESP8266_AT::post(const String& host, const String& path, const String& body,
+bool HttpClient_ESP32_AT::post(const String& host, const String& path, const String& body,
                                  const String& contentType, uint32_t port) {
     return sendRequest(F("POST"), host, port, path, contentType, body);
 }
 
-bool HttpClient_ESP8266_AT::sendRequest(const String& method,
+bool HttpClient_ESP32_AT::sendRequest(const String& method,
                                         const String& host, uint32_t port, const String& path,
                                         const String& contentType, const String& body) {
     // Create TCP connection
@@ -171,7 +171,7 @@ bool HttpClient_ESP8266_AT::sendRequest(const String& method,
     String getRequest[] = {
         F("GET "),
         F(" HTTP/1.1\r\nHost: "),
-        F("\r\nUser-Agent: Arduino ESP8266\r\nConnection: close\r\n\r\n"),
+        F("\r\nUser-Agent: Arduino ESP32\r\nConnection: close\r\n\r\n"),
     };
     const uint8_t nPostRequest = 6;
     String postRequest[] = {
@@ -179,7 +179,7 @@ bool HttpClient_ESP8266_AT::sendRequest(const String& method,
         F(" HTTP/1.1\r\nHost: "),
         F("\r\nContent-Type: "),
         "\r\nContent-Length: " + String(body.length()),
-        F("\r\nUser-Agent: Arduino ESP8266\r\nConnection: close\r\n\r\n"),
+        F("\r\nUser-Agent: Arduino ESP32\r\nConnection: close\r\n\r\n"),
         F("\r\n"),
     };
     uint32_t len = path.length() + host.length() + contentType.length() + body.length();
