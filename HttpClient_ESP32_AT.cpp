@@ -147,24 +147,65 @@ bool HttpClient_ESP32_AT::connectTcp(const String& host, uint32_t port) {
     return false;
 }
 
+bool HttpClient_ESP32_AT::connectedSsl() {
+    uint8_t retry = 5;
+    do {
+        if(ipStatus() == 3) return true;
+        delay(100);
+    } while(--retry);
+    return false;
+}
+
+bool HttpClient_ESP32_AT::disconnectSsl() {
+    rxClear();
+    m_serial->println(F("AT+CIPCLOSE"));
+    return checkATResponse();
+}
+
+bool HttpClient_ESP32_AT::connectSsl(const String& host, uint32_t port) {
+    if(connectedSsl()) disconnectSsl();
+    String buf;
+    uint8_t retry = 10;
+    do {
+        rxClear();
+        m_serial->print(F("AT+CIPSTART=\"SSL\",\""));
+        m_serial->print(host);
+        m_serial->print(F("\","));
+        m_serial->println(port);
+        checkATResponse(&buf);
+        if(buf.indexOf(F("OK")) != -1 || buf.indexOf(F("ALREADY")) != -1) {
+            return true;
+        }
+        delay(100);
+    } while(retry--);
+    return false;
+}
+
 int HttpClient_ESP32_AT::responseStatusCode() {
     return m_responseStatusCode;
 }
 
-bool HttpClient_ESP32_AT::get(const String& host, const String& path, uint32_t port) {
-    return sendRequest(F("GET"), host, port, path);
+bool HttpClient_ESP32_AT::get(const String& protocol, const String& host, const String& path, uint32_t port) {
+    return sendRequest(protocol, F("GET"), host, port, path);
 }
 
-bool HttpClient_ESP32_AT::post(const String& host, const String& path, const String& body,
+bool HttpClient_ESP32_AT::post(const String& protocol, const String& host, const String& path, const String& body,
                                  const String& contentType, uint32_t port) {
-    return sendRequest(F("POST"), host, port, path, contentType, body);
+    return sendRequest(protocol, F("POST"), host, port, path, contentType, body);
 }
 
-bool HttpClient_ESP32_AT::sendRequest(const String& method,
+bool HttpClient_ESP32_AT::sendRequest(
+                                        const String& protocol, const String& method,
                                         const String& host, uint32_t port, const String& path,
                                         const String& contentType, const String& body) {
-    // Create TCP connection
-    connectTcp(host, port);
+    if(protocol == F("TCP"))[
+        // Create TCP connection
+        connectTcp(host, port);
+    ]else if(protocol == F("SSL")){
+        // Create SSL connection
+        connectedSsl(host, port);
+    }
+    
 
     // HTTP Request parts
     const uint8_t nGetRequest = 3;

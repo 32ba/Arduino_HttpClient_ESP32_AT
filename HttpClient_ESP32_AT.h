@@ -59,9 +59,9 @@ class HttpClient_ESP32_AT
  public:
     // HTTP GET and POST
     // - return true if successful, else error
-    // - SSL/TLS is not supported
-    bool get(const String& host, const String& path, uint32_t port = 80);
-    bool post(const String& host, const String& path, const String& body,
+    // - SSL/TLS is supported
+    bool get(const String& protocol, const String& host, const String& path, uint32_t port = 80);
+    bool post(const String& protocol, const String& host, const String& path, const String& body,
               const String& contentType = "application/x-www-form-urlencoded", uint32_t port = 80);
 
     // HTTP response status code of the last request
@@ -75,6 +75,12 @@ class HttpClient_ESP32_AT
     bool connectTcp(const String& host, uint32_t port);
     bool disconnectTcp();
     bool connectedTcp(); // true if TCP connection exists
+
+ private:
+    // Create or Destroy SSL connection
+    bool connectSsl(const String& host, uint32_t port);
+    bool disconnectSsl();
+    bool connectedSsl(); // true if SSL connection exists
 
  private:
     // Common HTTP request interface for GET and POST

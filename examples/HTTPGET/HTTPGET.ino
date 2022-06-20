@@ -29,7 +29,7 @@ void setup() {
 void loop() {
     while(true) {
         // Let's start HTTP GET request
-        httpClient.get("www.example.com", "/");
+        httpClient.get("TCP" ,"www.example.com", "/");
 
         // Check the request data was sent successfully without timeout.
         //   -1: timeout error (request data was NOT sent)
