@@ -29,7 +29,7 @@ void setup() {
 void loop() {
     while(true) {
         // Let's start HTTPS GET request
-        httpClient.get("SSL" ,"www.example.com", "/");
+        httpClient.get("SSL" ,"google.com", "/", 443);
 
         // Check the request data was sent successfully without timeout.
         //   -1: timeout error (request data was NOT sent)
