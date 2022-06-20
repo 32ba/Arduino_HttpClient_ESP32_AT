@@ -198,12 +198,12 @@ bool HttpClient_ESP32_AT::sendRequest(
                                         const String& protocol, const String& method,
                                         const String& host, uint32_t port, const String& path,
                                         const String& contentType, const String& body) {
-    if(protocol == F("TCP"))[
+    if(protocol == "TCP"){
         // Create TCP connection
         connectTcp(host, port);
-    ]else if(protocol == F("SSL")){
+    }else if(protocol == "SSL"){
         // Create SSL connection
-        connectedSsl(host, port);
+        connectSsl(host, port);
     }
     
 
@@ -234,7 +234,7 @@ bool HttpClient_ESP32_AT::sendRequest(
         rxClear();
         m_serial->print(F("AT+CIPSEND="));
         m_serial->println(len);
-        if(checkATResponse(&buf, F("> "))) break;
+        if(checkATResponse(&buf, F(">"))) break;
         if(!(--retry)) {
             m_responseStatusCode = -1; // timeout error (request data was NOT sent)
             return false;
