@@ -71,7 +71,7 @@ bool HttpClient_ESP32_AT::restart() {
 
 bool HttpClient_ESP32_AT::connectAP(const String& ssid, const String& password) {
     rxClear();
-    m_serial->println(F("AT+CWMODE_DEF=1")); // 1: station(client) mode, 2: softAP(server) mode, 3: 1&2
+    m_serial->println(F("AT+CWMODE=1")); // 1: station(client) mode, 2: softAP(server) mode, 3: 1&2
     if(!(checkATResponse() && restart())) return false; // change "DEF"ault cwMode and restart
 
     uint8_t retry = 5;
@@ -79,7 +79,7 @@ bool HttpClient_ESP32_AT::connectAP(const String& ssid, const String& password) 
         // Connect to an AP
         rxClear();
         delay(500);
-        m_serial->print(F("AT+CWJAP_DEF=\""));
+        m_serial->print(F("AT+CWJAP=\""));
         m_serial->print(ssid);
         m_serial->print(F("\",\""));
         m_serial->print(password);
