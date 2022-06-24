@@ -37,6 +37,10 @@ class HttpClient_ESP32_AT
     // Connect/Disconnect ESP32 to/from WiFi network
     bool connectAP(const String& ssid, const String& password);
     bool disconnectAP();
+    //Enter deep sleep
+    bool deepSleep(uint32_t millis = 0);
+    //Set sleep mode
+    bool sleep(uint8_t mode);
 
  private:
     // Clear rx buffer

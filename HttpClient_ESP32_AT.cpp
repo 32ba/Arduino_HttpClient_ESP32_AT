@@ -69,6 +69,20 @@ bool HttpClient_ESP32_AT::restart() {
     return false;
 }
 
+bool HttpClient_ESP32_AT::deepSleep(uint32_t millis) {
+    rxClear();
+    m_serial->print(F("AT+GSLP="));
+    m_serial->println(millis); // min = 0, max = 3600000(1hour)
+    return checkATResponse();
+}
+
+bool HttpClient_ESP32_AT::sleep(uint8_t mode) {
+    rxClear();
+    m_serial->print(F("AT+SLEEP="));
+    m_serial->println(mode); // 0: disable sleep mode 1: modem-sleep mode 2: light-sleep mode 3: modem-sleep listen interval mode
+    return checkATResponse();
+}
+
 bool HttpClient_ESP32_AT::connectAP(const String& ssid, const String& password) {
     rxClear();
     m_serial->println(F("AT+CWMODE=1")); // 1: station(client) mode, 2: softAP(server) mode, 3: 1&2
