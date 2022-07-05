@@ -28,8 +28,8 @@ void setup() {
 
 void loop() {
     while(true) {
-        // Let's start HTTP POST request
-        httpClient.post("TCP", "www.example.com", "/", "name=hoge%27hoge&val=123", "application/x-www-form-urlencoded");
+        // Let's start HTTPS POST request
+        httpClient.post("SSL", "www.example.com", "/", "name=hoge%27hoge&val=123", "application/x-www-form-urlencoded", 443);
 
         // Check the request data was sent successfully without timeout.
         //   -1: timeout error (request data was NOT sent)
